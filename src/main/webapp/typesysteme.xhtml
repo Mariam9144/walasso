@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+<h:head>
+	<h:outputStylesheet library="webjars"
+		name="primeflex/2.0.0/primeflex.min.css" />
+	<h:outputStylesheet library="css" name="messtyles.css" />
+</h:head>
+<h:body>
+	
+	<div class="p-d-flex">
+		<div class="p-mr-2">
+			<div class="card">
+				<h:form>
+					<p:growl>
+						<p:autoUpdate />
+					</p:growl>
+					<p:panelMenu style="width:300px">
+						<p:submenu label="Etudiants">
+							<p:menuitem value="Domaines"
+								url="http://localhost:8080/domaine.xhtml" ajax="false" icon="" />
+							<p:menuitem value="Mentions"
+								url="http://localhost:8080/mention.xhtml" icon="" />
+							<p:menuitem value="Filieres"
+								url="http://localhost:8080/filiere.xhtml" icon="" />
+							<p:menuitem value="Parcours"
+								url="http://localhost:8080/parcours.xhtml" icon="" />
+							
+						</p:submenu>
+						<p:submenu label = "Scolarité">
+						<p:menuitem value="Grades"
+								url="http://localhost:8080/grade.xhtml" icon="" />
+							<p:menuitem value="Type Systeme"
+								url="http://localhost:8080/typesysteme.xhtml" icon="" />
+						</p:submenu>
+						<p:submenu label="Administrations">
+							<p:menuitem value="Utilisateurs" icon="pi pi-users"
+								url="http://localhost:8080/user.xhtml" />
+						</p:submenu>
+					</p:panelMenu>
+				</h:form>
+			</div>
+		</div>
+		<div class="p-mr-10">
+			<div class="p-mr-2">
+<h:form id="form">
+    <div class="card crud-demo">
+        <p:growl id="messages" showDetail="true"/>
+
+        <p:toolbar>
+            <p:toolbarGroup>
+                <p:commandButton value="New" icon="pi pi-plus" actionListener="#{typeSystemeBean.openNew}"
+                                 update=":form:manage-typeSysteme-content" oncomplete="PF('manageTypeSystemeDialog').show()"
+                                 styleClass="ui-button-success" style="margin-right: .5rem " immediate="true">
+                    <p:resetInput target=":form:manage-typeSysteme-content"/>
+                </p:commandButton>
+                <p:commandButton id="delete-typeSystemes-button" value="#{typeSystemeBean.deleteButtonMessage}"
+                                 icon="pi pi-trash" actionListener="#{typeSystemeBean.deleteSelectedTypeSystemes}"
+                                 styleClass="ui-button-danger" disabled="#{!typeSystemeBean.hasSelectedTypeSystemes()}"
+                                 update="@this">
+                    <p:confirm header="Confirmation" message="Delete the selected typeSystemes?"
+                               icon="pi pi-exclamation-triangle"/>
+                </p:commandButton>
+            </p:toolbarGroup>
+            <p:toolbarGroup align="right">
+                <p:fileUpload mode="simple" skinSimple="true" label="Import" chooseIcon="pi pi-download"/>
+                <p:commandButton value="Export" icon="pi pi-upload" styleClass="ui-button-help" ajax="false">
+                    <p:dataExporter type="pdf" target="dt-typeSystemes" fileName="typeSystemes"/>
+                </p:commandButton>
+            </p:toolbarGroup>
+        </p:toolbar>
+
+        <p:dataTable id="dt-typeSystemes" widgetVar="dtTypeSystemes" var="typeSysteme" value="#{typeSystemeBean.typeSystemes}"
+                     reflow="true" styleClass="typeSystemes-table"
+                     selection="#{typeSystemeBean.selectedTypeSystemes}" rowKey="#{typeSysteme.id}" paginator="true"
+                     rows="10" rowSelectMode="add" paginatorPosition="bottom">
+            <f:facet name="header">
+                <div class="typeSystemes-table-header">
+                    <span style="font-weight: bold">TYPE SYSTEME</span>
+
+                    <span class="filter-container ui-input-icon-left">
+                        <i class="pi pi-search"></i>
+                        <p:inputText id="globalFilter" onkeyup="PF('dtTypeSystemes').filter()" placeholder="Search"/>
+                    </span>
+
+                </div>
+            </f:facet>
+
+            <p:ajax event="rowSelect" update=":form:delete-typeSystemes-button"/>
+            <p:ajax event="rowUnselect" update=":form:delete-typeSystemes-button"/>
+            <p:ajax event="rowSelectCheckbox" update=":form:delete-typeSystemes-button"/>
+            <p:ajax event="rowUnselectCheckbox" update=":form:delete-typeSystemes-button"/>
+            <p:ajax event="toggleSelect" update=":form:delete-typeSystemes-button"/>
+
+            <p:column selectionMode="multiple" exportable="false"></p:column>
+
+            <p:column headerText="Code" sortBy="#{typeSysteme.code}" filterBy="#{typeSysteme.code}">
+                <h:outputText value="#{typeSysteme.code}"/>
+            </p:column>
+            <p:column headerText="Libellé" sortBy="#{typeSysteme.libelle}" filterBy="#{typeSysteme.libelle}">
+                <h:outputText value="#{typeSysteme.libelle}"/>
+            </p:column>
+            <p:column headerText="Description" sortBy="#{typeSysteme.description}" filterBy="#{typeSysteme.description}">
+                <h:outputText value="#{typeSysteme.description}"/>
+            </p:column>
+           
+            
+            <p:column exportable="false">
+                <p:commandButton icon="pi pi-pencil" update=":form:manage-typeSysteme-content"
+                                 oncomplete="PF('manageTypeSystemeDialog').show()"
+                                 styleClass="edit-button rounded-button ui-button-success" process="@this">
+                    <f:setPropertyActionListener value="#{typeSysteme}" target="#{typeSystemeBean.selectedTypeSysteme}"/>
+                    <p:resetInput target=":form:manage-typeSysteme-content"/>
+                </p:commandButton>
+                <p:commandButton class="ui-button-warning rounded-button" icon="pi pi-trash" process="@this"
+                                 oncomplete="PF('deleteTypeSystemeDialog').show()">
+                    <f:setPropertyActionListener value="#{typeSysteme}" target="#{typeSystemeBean.selectedTypeSysteme}"/>
+                </p:commandButton>
+            </p:column>
+
+        </p:dataTable>
+
+        <p:dialog header="TypeSysteme Details" showEffect="fade" modal="true"
+                  widgetVar="manageTypeSystemeDialog" responsive="true">
+            <p:outputPanel id="manage-typeSysteme-content" class="ui-fluid">
+                <p:outputPanel rendered="#{not empty typeSystemeBean.selectedTypeSysteme}">
+                   
+                   <div class="p-field">
+                        <p:outputLabel for="code">Code</p:outputLabel>
+                        <p:inputText id="code" value="#{typeSystemeBean.selectedTypeSysteme.code}" required="true"/>
+                    </div>
+                    <div class="p-field">
+                        <p:outputLabel for="libelle">Libellé</p:outputLabel>
+                        <p:inputText id="libelle" value="#{typeSystemeBean.selectedTypeSysteme.libelle}" required="true"/>
+                    </div>
+                    <div class="p-field">
+                        <p:outputLabel for="description">Description</p:outputLabel>
+                        <p:inputTextarea id="description" value="#{typeSystemeBean.selectedTypeSysteme.description}"/>
+                    </div>
+         
+          
+                </p:outputPanel>
+            </p:outputPanel>
+
+            <f:facet name="footer">
+                <p:commandButton value="Save" icon="pi pi-check" actionListener="#{typeSystemeBean.saveTypeSysteme}"
+                                 update="manage-typeSysteme-content" process="manage-typeSysteme-content @this"/>
+                <p:commandButton value="Cancel" icon="pi pi-times" onclick="PF('manageTypeSystemeDialog').hide()"
+                                 class="ui-button-secondary" immediate="true"/>
+            </f:facet>
+        </p:dialog>
+
+        <p:confirmDialog widgetVar="deleteTypeSystemeDialog" showEffect="fade" width="300"
+                         message="Delete the typeSysteme?" header="Confirm" severity="warn">
+            <p:commandButton value="Yes" icon="pi pi-check" actionListener="#{typeSystemeBean.deleteTypeSysteme}"
+                             process="@this" oncomplete="PF('deleteTypeSystemeDialog').hide()"/>
+            <p:commandButton value="No" type="button" styleClass="ui-button-secondary" icon="pi pi-times"
+                             onclick="PF('deleteTypeSystemeDialog').hide()"/>
+        </p:confirmDialog>
+
+        <p:confirmDialog global="true" showEffect="fade" width="300">
+            <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" icon="pi pi-check"/>
+            <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no ui-button-secondary"
+                             icon="pi pi-times"/>
+        </p:confirmDialog>
+        
+    </div>
+</h:form>
+</div>
+</div>
+</div>
+</h:body>
+</html>

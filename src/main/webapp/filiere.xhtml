@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+<h:head>
+	<h:outputStylesheet library="webjars"
+		name="primeflex/2.0.0/primeflex.min.css" />
+	<h:outputStylesheet library="css" name="messtyles.css" />
+</h:head>
+<h:body>
+
+	<div class="p-d-flex">
+		<div class="p-mr-2">
+			<div class="card">
+				<h:form>
+					<p:growl>
+						<p:autoUpdate />
+					</p:growl>
+					<p:panelMenu style="width:300px">
+						<p:submenu label="Etudes">
+							<p:menuitem value="Domaines"
+								url="http://localhost:8080/domaine.xhtml" ajax="false" icon="" />
+							<p:menuitem value="Mentions"
+								url="http://localhost:8080/mention.xhtml" icon="" />
+							<p:menuitem value="Filieres"
+								url="http://localhost:8080/filiere.xhtml" icon="" />
+							<p:menuitem value="Parcours"	
+								url="http://localhost:8080/parcours.xhtml" icon="" />
+							
+						</p:submenu >
+						<p:submenu label = "Scolarité">
+						<p:menuitem value="Grades"
+								url="http://localhost:8080/grade.xhtml" icon="" />
+							<p:menuitem value="Type Systeme"
+								url="http://localhost:8080/typesysteme.xhtml" icon="" />
+						</p:submenu>
+						<p:submenu label="Administrations">
+							<p:menuitem value="Utilisateurs" icon="pi pi-users"
+								url="http://localhost:8080/user.xhtml" />
+						</p:submenu>
+					</p:panelMenu>
+				</h:form>
+			</div>
+		</div>
+		<div class="p-mr-10">
+			<div class="p-mr-2">
+				<h:form id="form">
+					<div class="card crud-demo">
+						<p:growl id="messages" showDetail="true" />
+
+						<p:toolbar>
+							<p:toolbarGroup>
+								<p:commandButton value="New" icon="pi pi-plus"
+									actionListener="#{filiereBean.openNew}"
+									update=":form:manage-filiere-content"
+									oncomplete="PF('manageFiliereDialog').show()"
+									styleClass="ui-button-success" style="margin-right: .5rem" immediate="true">
+									<p:resetInput target=":form:manage-filiere-content" />
+								</p:commandButton>
+								<p:commandButton id="delete-filieres-button"
+									value="#{filiereBean.deleteButtonMessage}" icon="pi pi-trash"
+									actionListener="#{filiereBean.deleteSelectedFilieres}"
+									styleClass="ui-button-danger"
+									disabled="#{!filiereBean.hasSelectedFilieres()}" update="@this">
+									<p:confirm header="Confirmation"
+										message="Voulez-vous supprimé les filieres?"
+										icon="pi pi-exclamation-triangle" />
+								</p:commandButton>
+							</p:toolbarGroup>
+							<p:toolbarGroup align="right">
+								<p:fileUpload mode="simple" skinSimple="true" label="Import"
+									chooseIcon="pi pi-download" />
+								<p:commandButton value="Export" icon="pi pi-upload"
+									styleClass="ui-button-help" ajax="false">
+									<p:dataExporter type="pdf" target="dt-filieres"
+										fileName="filieres" />
+								</p:commandButton>
+							</p:toolbarGroup>
+						</p:toolbar>
+
+						<p:dataTable id="dt-filieres" widgetVar="dtFilieres" var="filiere"
+							value="#{filiereBean.filieres}" reflow="true"
+							styleClass="filieres-table"
+							selection="#{filiereBean.selectedFilieres}"
+							rowKey="#{filiere.id}" paginator="true" rows="10"
+							rowSelectMode="add" paginatorPosition="bottom">
+							<f:facet name="header">
+								<div class="filieres-table-header">
+									<span style="font-weight: bold">FILIERE</span> <span
+										class="filter-container ui-input-icon-left"> <i
+										class="pi pi-search"></i> <p:inputText id="globalFilter"
+											onkeyup="PF('dtFilieres').filter()" placeholder="Search" />
+									</span>
+
+								</div>
+							</f:facet>
+
+							<p:ajax event="rowSelect" update=":form:delete-filieres-button" />
+							<p:ajax event="rowUnselect" update=":form:delete-filieres-button" />
+							<p:ajax event="rowSelectCheckbox"
+								update=":form:delete-filieres-button" />
+							<p:ajax event="rowUnselectCheckbox"
+								update=":form:delete-filieres-button" />
+							<p:ajax event="toggleSelect"
+								update=":form:delete-filieres-button" />
+
+							<p:column selectionMode="multiple" exportable="false"></p:column>
+
+							<p:column headerText="Code" sortBy="#{filiere.code}"
+								filterBy="#{filiere.code}">
+								<h:outputText value="#{filiere.code}" />
+							</p:column>
+							<p:column headerText="Intitulé" sortBy="#{filiere.intitule}"
+								filterBy="#{filiere.intitule}">
+								<h:outputText value="#{filiere.intitule}" />
+							</p:column>
+							<p:column headerText="Description"
+								sortBy="#{filiere.description}"
+								filterBy="#{filiere.description}">
+								<h:outputText value="#{filiere.description}" />
+							</p:column>
+							<p:column headerText="Niveau Départ"
+								sortBy="#{filiere.niveauDepart}"
+								filterBy="#{filiere.niveauDepart}">
+								<h:outputText value="#{filiere.niveauDepart}" />
+							</p:column>
+							<p:column headerText="Niveau Arrivé"
+								sortBy="#{filiere.niveauArrive}"
+								filterBy="#{filiere.niveauArrive}">
+								<h:outputText value="#{filiere.niveauArrive}" />
+							</p:column>
+
+							<p:column headerText="Mention" sortBy="#{filiere.mention.libelle}"
+								filterBy="#{filiere.mention.libelle}">
+								<h:outputText value="#{filiere.mention.libelle}" />
+							</p:column>
+							
+							<p:column headerText="Grade" sortBy="#{filiere.grade.libelle}"
+								filterBy="#{filiere.grade.libelle}">
+								<h:outputText value="#{filiere.grade.libelle}" />
+							</p:column>
+
+
+							<p:column exportable="false">
+								<p:commandButton icon="pi pi-pencil"
+									update=":form:manage-filiere-content"
+									oncomplete="PF('manageFiliereDialog').show()"
+									styleClass="edit-button rounded-button ui-button-success"
+									process="@this">
+									<f:setPropertyActionListener value="#{filiere}"
+										target="#{filiereBean.selectedFiliere}" />
+									<p:resetInput target=":form:manage-filiere-content" />
+								</p:commandButton>
+								<p:commandButton class="ui-button-warning rounded-button"
+									icon="pi pi-trash" process="@this"
+									oncomplete="PF('deleteFiliereDialog').show()">
+									<f:setPropertyActionListener value="#{filiere}"
+										target="#{filiereBean.selectedFiliere}" />
+								</p:commandButton>
+							</p:column>
+
+						</p:dataTable>
+
+						<p:dialog header="Filiere Details" showEffect="fade" modal="true"
+							widgetVar="manageFiliereDialog" responsive="true">
+							<p:outputPanel id="manage-filiere-content" class="ui-fluid">
+								<p:outputPanel
+									rendered="#{not empty filiereBean.selectedFiliere}">
+									
+									<div class= "p-grid ui-fluid"> 
+									<div class="p-field p-col-12 p-md-6">
+									
+										<p:outputLabel for="code">Code</p:outputLabel>
+										<p:inputText id="code"
+											value="#{filiereBean.selectedFiliere.code}" required="true" />
+									</div>
+									<div class="p-field p-col-12 p-md-6">
+										<p:outputLabel for="intitule">Intitulé</p:outputLabel>
+										<p:inputText id="intitule"
+											value="#{filiereBean.selectedFiliere.intitule}"
+											required="true" />
+									</div>
+									</div>
+									<div class= "p-grid ui-fluid"> 
+									<div class="p-field p-col-12 p-md-12">
+										<p:outputLabel for="description">Description</p:outputLabel>
+										<p:inputTextarea id="description"
+											value="#{filiereBean.selectedFiliere.description}"
+											required="true" />
+									</div>
+									
+									</div>
+									<div class= "p-grid ui-fluid"> 
+									<div class="p-field p-col-12 p-md-6">
+										<p:outputLabel for="niveauArrive">Niveau Arrivé</p:outputLabel>
+										<p:inputText id="niveauArrive"
+											value="#{filiereBean.selectedFiliere.niveauArrive}"
+											required="true" />
+									</div>
+									<div class="p-field p-col-12 p-md-6">
+										<p:outputLabel for="niveauDepart">Niveau Départ</p:outputLabel>
+										<p:inputText id="niveauDepart"
+											value="#{filiereBean.selectedFiliere.niveauDepart}"
+											required="true" />
+									</div>
+									
+									</div>
+									<div class= "p-grid ui-fluid"> 
+									<div class="p-field p-col-12 p-md-6">
+										<h:outputLabel for="">Mention</h:outputLabel>
+										<BR />
+										<p:selectOneMenu
+											value="#{filiereBean.selectedFiliere.mention}"
+											converter="#{genericSecuredConverter}">
+											<f:selectItems value="#{mentionBean.mentions}" var="mention"
+												itemLabel="#{mention.libelle}" itemValue="#{mention}" />
+										</p:selectOneMenu>
+									</div>
+									<div class="p-field p-col-12 p-md-6">
+										<h:outputLabel for="">Grade</h:outputLabel>
+										<BR />
+										<p:selectOneMenu
+											value="#{filiereBean.selectedFiliere.grade}"
+											converter="#{genericSecuredConverter}">
+											<f:selectItems value="#{gradeBean.grades}" var="grade"
+												itemLabel="#{grade.libelle}" itemValue="#{grade}" />
+										</p:selectOneMenu>
+									</div>
+									</div>
+
+								</p:outputPanel>
+							</p:outputPanel>
+
+							<f:facet name="footer">
+								<p:commandButton value="Ajouter" icon="pi pi-check"
+									actionListener="#{filiereBean.saveFiliere}"
+									update="manage-filiere-content"
+									process="manage-filiere-content @this" />
+								<p:commandButton value="Annuler" icon="pi pi-times"
+									onclick="PF('manageFiliereDialog').hide()"
+									class="ui-button-secondary"  immediate="true"/>
+							</f:facet>
+						</p:dialog>
+
+						<p:confirmDialog widgetVar="deleteFiliereDialog" showEffect="fade"
+							width="300" message="Delete the filiere?" header="Confirm"
+							severity="warn">
+							<p:commandButton value="Yes" icon="pi pi-check"
+								actionListener="#{filiereBean.deleteFiliere}" process="@this"
+								oncomplete="PF('deleteFiliereDialog').hide()" />
+							<p:commandButton value="No" type="button"
+								styleClass="ui-button-secondary" icon="pi pi-times"
+								onclick="PF('deleteFiliereDialog').hide()" />
+						</p:confirmDialog>
+
+						<p:confirmDialog global="true" showEffect="fade" width="300">
+							<p:commandButton value="Yes" type="button"
+								styleClass="ui-confirmdialog-yes" icon="pi pi-check" />
+							<p:commandButton value="No" type="button"
+								styleClass="ui-confirmdialog-no ui-button-secondary"
+								icon="pi pi-times" />
+						</p:confirmDialog>
+
+					</div>
+				</h:form>
+			</div>
+		</div>
+	</div>
+
+</h:body>
+</html>

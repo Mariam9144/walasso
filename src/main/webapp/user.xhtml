@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+<h:head>
+	<h:outputStylesheet library="webjars"
+		name="primeflex/2.0.0/primeflex.min.css" />
+	<h:outputStylesheet library="css" name="messtyles.css" />
+</h:head>
+<h:body>
+ <div class="p-d-flex">
+		<div class="p-mr-2">
+			<div class="card">
+				<h:form>
+					<p:growl>
+						<p:autoUpdate />
+					</p:growl>
+					<p:panelMenu style="width:300px">
+						<p:submenu label="Etudiants">
+							<p:menuitem value="Domaines"
+								url="http://localhost:8080/domaine.xhtml" ajax="false" icon="" />
+							<p:menuitem value="Userss"
+								url="http://localhost:8080/users.xhtml" icon="" />
+							<p:menuitem value="Filieres"
+								url="http://localhost:8080/filiere.xhtml" icon="" />
+							<p:menuitem value="Parcours"
+								url="http://localhost:8080/parcours.xhtml" icon="" />
+							
+						</p:submenu>
+						<p:submenu label = "Scolarité">
+						<p:menuitem value="Grades"
+								url="http://localhost:8080/grade.xhtml" icon="" />
+							<p:menuitem value="Type Systeme"
+								url="http://localhost:8080/typesysteme.xhtml" icon="" />
+						</p:submenu>
+						
+						<p:submenu label="Administrations">
+							<p:menuitem value="Utilisateurs" icon="pi pi-users"
+								url="http://localhost:8080/user.xhtml" />
+						</p:submenu>
+					</p:panelMenu>
+				</h:form>
+		</div>
+</div>
+<div class="p-mr-10">
+<div class="p-mr-2">
+	<h:form id="form">
+		<div class="card crud-demo">
+			<p:growl id="messages" showDetail="true" />
+
+			<p:toolbar>
+				<p:toolbarGroup>
+					<p:commandButton value="New" icon="pi pi-plus"
+						actionListener="#{usersBean.openNew}"
+						update=":form:manage-users-content"
+						oncomplete="PF('manageUsersDialog').show()"
+						styleClass="ui-button-success" style="margin-right: .5rem">
+						<p:resetInput target=":form:manage-users-content" />
+					</p:commandButton>
+					<p:commandButton id="delete-userss-button"
+						value="#{usersBean.deleteButtonMessage}" icon="pi pi-trash"
+						actionListener="#{usersBean.deleteSelectedUserss}"
+						styleClass="ui-button-danger"
+						disabled="#{!usersBean.hasSelectedUserss()}" update="@this">
+						<p:confirm header="Confirmation"
+							message="Voulez-vous supprimé les userss?"
+							icon="pi pi-exclamation-triangle" />
+					</p:commandButton>
+				</p:toolbarGroup>
+				<p:toolbarGroup align="right">
+					<p:commandButton mode="simple" skinSimple="true" label="Deconnexion"
+						chooseIcon="pi pi-sign-out"  url="http://localhost:8080/login.xhtml" />
+					<p:commandButton value="Export" icon="pi pi-upload"
+						styleClass="ui-button-help" ajax="false">
+						<p:dataExporter type="pdf" target="dt-userss"
+							fileName="userss" />
+					</p:commandButton>
+				</p:toolbarGroup>
+			</p:toolbar>
+
+			<p:dataTable id="dt-userss" widgetVar="dtUserss" var="users"
+				value="#{usersBean.userss}" reflow="true"
+				styleClass="userss-table"
+				selection="#{usersBean.selectedUserss}" rowKey="#{users.id}"
+				paginator="true" rows="10" rowSelectMode="add"
+				paginatorPosition="bottom">
+				<f:facet name="header">
+					<div class="userss-table-header">
+						<span style="font-weight: bold">USERS</span> <span
+							class="filter-container ui-input-icon-left"> <i
+							class="pi pi-search"></i> <p:inputText id="globalFilter"
+								onkeyup="PF('dtUserss').filter()" placeholder="Search" />
+						</span>
+
+					</div>
+				</f:facet>
+
+				<p:ajax event="rowSelect" update=":form:delete-userss-button" />
+				<p:ajax event="rowUnselect" update=":form:delete-userss-button" />
+				<p:ajax event="rowSelectCheckbox"
+					update=":form:delete-userss-button" />
+				<p:ajax event="rowUnselectCheckbox"
+					update=":form:delete-userss-button" />
+				<p:ajax event="toggleSelect" update=":form:delete-userss-button" />
+
+				<p:column selectionMode="multiple" exportable="false"></p:column>
+
+				<p:column headerText="Enable" sortBy="#{users.enabled}" filterBy="#{users.enabled}">
+                <h:outputText value="#{users.enabled}"/>
+            </p:column>
+            <p:column headerText="Password" sortBy="#{users.password}" filterBy="#{users.password}">
+                <h:outputText value="#{users.password}"/>
+            </p:column>
+            <p:column headerText="Role" sortBy="#{users.role}" filterBy="#{users.role}">
+                <h:outputText value="#{users.role}"/>
+            </p:column>
+            <p:column headerText="Usersname" sortBy="#{users.username}" filterBy="#{users.username}">
+                <h:outputText value="#{users.username}"/>
+            </p:column>
+
+				<p:column exportable="false">
+					<p:commandButton icon="pi pi-pencil"
+						update=":form:manage-users-content"
+						oncomplete="PF('manageUsersDialog').show()"
+						styleClass="edit-button rounded-button ui-button-success"
+						process="@this">
+						<f:setPropertyActionListener value="#{users}"
+							target="#{usersBean.selectedUsers}" />
+						<p:resetInput target=":form:manage-users-content" />
+					</p:commandButton>
+					<p:commandButton class="ui-button-warning rounded-button"
+						icon="pi pi-trash" process="@this"
+						oncomplete="PF('deleteUsersDialog').show()">
+						<f:setPropertyActionListener value="#{users}"
+							target="#{usersBean.selectedUsers}" />
+					</p:commandButton>
+				</p:column>
+
+			</p:dataTable>
+
+			<p:dialog header="Users Details" showEffect="fade" modal="true"
+				widgetVar="manageUsersDialog" responsive="true">
+				<p:outputPanel id="manage-users-content" class="ui-fluid">
+					<p:outputPanel rendered="#{not empty usersBean.selectedUsers}">
+
+					 <div class="p-field">
+                        <p:outputLabel for="enabled">Enabled</p:outputLabel>
+                        <p:inputText id="enabled" value="#{usersBean.selectedUsers.enabled}" required="true"/>
+                    </div>
+                    <div class="p-field">
+                        <p:outputLabel for="password">Password</p:outputLabel>
+                        <p:inputText id="password" value="#{usersBean.selectedUsers.password}" required="true"/>
+                    </div>
+                    <div class="p-field">
+                        <p:outputLabel for="role">Role</p:outputLabel>
+                        <p:inputText id="role" value="#{usersBean.selectedUsers.role}"/>
+                    </div>
+                    <div class="p-field">
+                        <p:outputLabel for="username">Usersname</p:outputLabel>
+                        <p:inputText id="username" value="#{usersBean.selectedUsers.username}"/>
+                    </div>
+
+						
+					</p:outputPanel>
+				</p:outputPanel>
+
+				<f:facet name="footer">
+					<p:commandButton value="Ajouter" icon="pi pi-check"
+						actionListener="#{usersBean.saveUsers}"
+						update="manage-users-content"
+						process="manage-users-content @this"  />
+					<p:commandButton value="Annuler" icon="pi pi-times"
+						onclick="PF('manageUsersDialog').hide()"
+						class="ui-button-secondary" immediate="true" />
+				</f:facet>
+			</p:dialog>
+
+			<p:confirmDialog widgetVar="deleteUsersDialog" showEffect="fade"
+				width="300" message="Delete the users?" header="Confirm"
+				severity="warn">
+				<p:commandButton value="Yes" icon="pi pi-check"
+					actionListener="#{usersBean.deleteUsers}" process="@this"
+					oncomplete="PF('deleteUsersDialog').hide()" />
+				<p:commandButton value="No" type="button"
+					styleClass="ui-button-secondary" icon="pi pi-times"
+					onclick="PF('deleteUsersDialog').hide()" />
+			</p:confirmDialog>
+
+			<p:confirmDialog global="true" showEffect="fade" width="300">
+				<p:commandButton value="Yes" type="button"
+					styleClass="ui-confirmdialog-yes" icon="pi pi-check" />
+				<p:commandButton value="No" type="button"
+					styleClass="ui-confirmdialog-no ui-button-secondary"
+					icon="pi pi-times" />
+			</p:confirmDialog>
+
+		</div>
+	</h:form>
+	</div>
+	</div>
+	</div>
+</h:body>
+</html>

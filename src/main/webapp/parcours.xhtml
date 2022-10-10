@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+<h:head>
+	<h:outputStylesheet library="webjars"
+		name="primeflex/2.0.0/primeflex.min.css" />
+	<h:outputStylesheet library="css" name="messtyles.css" />
+</h:head>
+<h:body>
+
+	<div class="p-d-flex">
+		<div class="p-mr-2">
+			<div class="card">
+				<h:form>
+					<p:growl>
+						<p:autoUpdate />
+					</p:growl>
+					<p:panelMenu style="width:300px">
+						<p:submenu label="Etudiants">
+							<p:menuitem value="Domaines"
+								url="http://localhost:8080/domaine.xhtml" ajax="false" icon="" />
+							<p:menuitem value="Mentions"
+								url="http://localhost:8080/mention.xhtml" icon="" />
+							<p:menuitem value="Filieres"
+								url="http://localhost:8080/filiere.xhtml" icon="" />
+							<p:menuitem value="Parcours"
+								url="http://localhost:8080/parcours.xhtml" icon="" />
+
+						</p:submenu>
+						<p:submenu label="Scolarité">
+							<p:menuitem value="Grades"
+								url="http://localhost:8080/grade.xhtml" icon="" />
+							<p:menuitem value="Type Systeme"
+								url="http://localhost:8080/typesysteme.xhtml" icon="" />
+						</p:submenu>
+						<p:submenu label="Administrations">
+							<p:menuitem value="Utilisateurs" icon="pi pi-users"
+								url="http://localhost:8080/user.xhtml" />
+						</p:submenu>
+					</p:panelMenu>
+				</h:form>
+			</div>
+		</div>
+		<div class="p-mr-10">
+			<div class="p-mr-2">
+
+				<h:form id="form">
+					<div class="card crud-demo">
+						<p:growl id="messages" showDetail="true" />
+
+						<p:toolbar>
+							<p:toolbarGroup>
+								<p:commandButton value="New" icon="pi pi-plus"
+									actionListener="#{parcoursBean.openNew}"
+									update=":form:manage-parcours-content"
+									oncomplete="PF('manageParcoursDialog').show()"
+									styleClass="ui-button-success" style="margin-right: .5rem" immediate="true">
+									<p:resetInput target=":form:manage-parcours-content" />
+								</p:commandButton>
+								<p:commandButton id="delete-parcourss-button"
+									value="#{parcoursBean.deleteButtonMessage}" icon="pi pi-trash"
+									actionListener="#{parcoursBean.deleteSelectedParcourss}"
+									styleClass="ui-button-danger"
+									disabled="#{!parcoursBean.hasSelectedParcourss()}"
+									update="@this">
+									<p:confirm header="Confirmation"
+										message="Delete the selected parcourss?"
+										icon="pi pi-exclamation-triangle" />
+								</p:commandButton>
+							</p:toolbarGroup>
+							<p:toolbarGroup align="right">
+								<p:fileUpload mode="simple" skinSimple="true" label="Import"
+									chooseIcon="pi pi-download" />
+								<p:commandButton value="Export" icon="pi pi-upload"
+									styleClass="ui-button-help" ajax="false">
+									<p:dataExporter type="pdf" target="dt-parcourss"
+										fileName="parcourss" />
+								</p:commandButton>
+							</p:toolbarGroup>
+						</p:toolbar>
+
+						<p:dataTable id="dt-parcourss" widgetVar="dtParcourss"
+							var="parcours" value="#{parcoursBean.parcourss}" reflow="true"
+							styleClass="parcourss-table"
+							selection="#{parcoursBean.selectedParcourss}"
+							rowKey="#{parcours.id}" paginator="true" rows="10"
+							rowSelectMode="add" paginatorPosition="bottom">
+							<f:facet name="header">
+								<div class="parcourss-table-header">
+									<span style="font-weight: bold">TYPE SYSTEME</span> <span
+										class="filter-container ui-input-icon-left"> <i
+										class="pi pi-search"></i> <p:inputText id="globalFilter"
+											onkeyup="PF('dtParcourss').filter()" placeholder="Search" />
+									</span>
+
+								</div>
+							</f:facet>
+
+							<p:ajax event="rowSelect" update=":form:delete-parcourss-button" />
+							<p:ajax event="rowUnselect"
+								update=":form:delete-parcourss-button" />
+							<p:ajax event="rowSelectCheckbox"
+								update=":form:delete-parcourss-button" />
+							<p:ajax event="rowUnselectCheckbox"
+								update=":form:delete-parcourss-button" />
+							<p:ajax event="toggleSelect"
+								update=":form:delete-parcourss-button" />
+
+							<p:column selectionMode="multiple" exportable="false"></p:column>
+
+							<p:column headerText="Code" sortBy="#{parcours.code}"
+								filterBy="#{parcours.code}">
+								<h:outputText value="#{parcours.code}" />
+							</p:column>
+							<p:column headerText="Libellé" sortBy="#{parcours.libelle}"
+								filterBy="#{parcours.libelle}">
+								<h:outputText value="#{parcours.libelle}" />
+							</p:column>
+							<p:column headerText="Depart" sortBy="#{parcours.depart}"
+								filterBy="#{parcours.depart}">
+								<h:outputText value="#{parcours.depart}" />
+							</p:column>
+							<p:column headerText="Arrivée" sortBy="#{parcours.arrive}"
+								filterBy="#{parcours.arrive}">
+								<h:outputText value="#{parcours.arrive}" />
+							</p:column>
+							<p:column headerText="Filière" sortBy="#{parcours.filiere.intitule}"
+								filterBy="#{parcours.filiere.intitule}">
+								<h:outputText value="#{parcours.filiere.intitule}" />
+							</p:column>
+
+
+							<p:column exportable="false">
+								<p:commandButton icon="pi pi-pencil"
+									update=":form:manage-parcours-content"
+									oncomplete="PF('manageParcoursDialog').show()"
+									styleClass="edit-button rounded-button ui-button-success"
+									process="@this">
+									<f:setPropertyActionListener value="#{parcours}"
+										target="#{parcoursBean.selectedParcours}" />
+									<p:resetInput target=":form:manage-parcours-content" />
+								</p:commandButton>
+								<p:commandButton class="ui-button-warning rounded-button"
+									icon="pi pi-trash" process="@this"
+									oncomplete="PF('deleteParcoursDialog').show()">
+									<f:setPropertyActionListener value="#{parcours}"
+										target="#{parcoursBean.selectedParcours}" />
+								</p:commandButton>
+							</p:column>
+
+						</p:dataTable>
+
+						<p:dialog header="Parcours Details" showEffect="fade" modal="true"
+							widgetVar="manageParcoursDialog" responsive="true">
+							<p:outputPanel id="manage-parcours-content" class="ui-fluid">
+								<p:outputPanel
+									rendered="#{not empty parcoursBean.selectedParcours}">
+
+									<div class= "p-grid ui-fluid"> 
+									<div class="p-field p-col-12 p-md-6">
+										<p:outputLabel for="code">Code</p:outputLabel>
+										<p:inputText id="code"
+											value="#{parcoursBean.selectedParcours.code}" required="true" />
+									</div>
+									<div class="p-field p-col-12 p-md-6">
+										<p:outputLabel for="libelle">Libellé</p:outputLabel>
+										<p:inputText id="libelle"
+											value="#{parcoursBean.selectedParcours.libelle}"
+											required="true" />
+									</div>
+									</div>
+									<div class= "p-grid ui-fluid"> 
+									<div class="p-field p-col-12 p-md-6">
+										<p:outputLabel for="depart">Départ</p:outputLabel>
+										<p:inputText id="depart"
+											value="#{parcoursBean.selectedParcours.depart}"
+											required="true" />
+									</div>
+									<div class="p-field p-col-12 p-md-6">
+										<p:outputLabel for="arrive">Arrivée</p:outputLabel>
+										<p:inputText id="arrive"
+											value="#{parcoursBean.selectedParcours.arrive}"
+											required="true" />
+									</div>
+									</div>
+									<div class= "p-grid ui-fluid"> 
+									<div class="p-field p-col-12 p-md-6">
+										<h:outputLabel for="">Filière</h:outputLabel>
+										<BR />
+										<p:selectOneMenu value="#{parcoursBean.selectedParcours.filiere}"
+											converter="#{genericSecuredConverter}">
+											<f:selectItems value="#{filiereBean.filieres}" var="filiere"
+												itemLabel="#{filiere.intitule}" itemValue="#{filiere}" />
+										</p:selectOneMenu>
+									</div>
+									</div>
+
+								</p:outputPanel>
+							</p:outputPanel>
+
+							<f:facet name="footer">
+								<p:commandButton value="Ajouter" icon="pi pi-check"
+									actionListener="#{parcoursBean.saveParcours}"
+									update="manage-parcours-content"
+									process="manage-parcours-content @this"  immediate="true"/>
+								<p:commandButton value="Annuler" icon="pi pi-times"
+									onclick="PF('manageParcoursDialog').hide()"
+									class="ui-button-secondary" immediate="true" />
+							</f:facet>
+						</p:dialog>
+
+						<p:confirmDialog widgetVar="deleteParcoursDialog"
+							showEffect="fade" width="300" message="Delete the parcours?"
+							header="Confirm" severity="warn">
+							<p:commandButton value="Yes" icon="pi pi-check"
+								actionListener="#{parcoursBean.deleteParcours}" process="@this"
+								oncomplete="PF('deleteParcoursDialog').hide()" />
+							<p:commandButton value="No" type="button"
+								styleClass="ui-button-secondary" icon="pi pi-times"
+								onclick="PF('deleteParcoursDialog').hide()" />
+						</p:confirmDialog>
+
+						<p:confirmDialog global="true" showEffect="fade" width="300">
+							<p:commandButton value="Yes" type="button"
+								styleClass="ui-confirmdialog-yes" icon="pi pi-check" />
+							<p:commandButton value="No" type="button"
+								styleClass="ui-confirmdialog-no ui-button-secondary"
+								icon="pi pi-times" />
+						</p:confirmDialog>
+
+					</div>
+				</h:form>
+			</div>
+		</div>
+	</div>
+</h:body>
+</html>

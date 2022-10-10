@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+<h:head>
+	<h:outputStylesheet library="webjars"
+		name="primeflex/2.0.0/primeflex.min.css" />
+	<h:outputStylesheet library="css" name="messtyles.css" />
+</h:head>
+<h:body>
+
+	<div class="p-d-flex">
+		<div class="p-mr-2">
+			<div class="card">
+				<h:form>
+					<p:growl>
+						<p:autoUpdate />
+					</p:growl>
+					<p:panelMenu style="width:300px">
+						<p:submenu label="Etudiants">
+							<p:menuitem value="Domaines"
+								url="http://localhost:8080/domaine.xhtml" ajax="false" icon="" />
+							<p:menuitem value="Mentions"
+								url="http://localhost:8080/mention.xhtml" icon="" />
+							<p:menuitem value="Filieres"
+								url="http://localhost:8080/filiere.xhtml" icon="" />
+							<p:menuitem value="Parcours"
+								url="http://localhost:8080/parcours.xhtml" icon="" />
+						</p:submenu>
+						<p:submenu label="Scolarité">
+							<p:menuitem value="Grades"
+								url="http://localhost:8080/grade.xhtml" icon="" />
+							<p:menuitem value="Type Systeme"
+								url="http://localhost:8080/typesysteme.xhtml" icon="" />
+						</p:submenu>
+						<p:submenu label="Administrations">
+							<p:menuitem value="Utilisateurs" icon="pi pi-users"
+								url="http://localhost:8080/user.xhtml" />
+						</p:submenu>
+					</p:panelMenu>
+				</h:form>
+			</div>
+		</div>
+		<div class="p-mr-10">
+			<div class="p-mr-2">
+
+				<h:form id="form">
+					<div class="card crud-demo">
+						<p:growl id="messages" showDetail="true" />
+
+						<p:toolbar>
+							<p:toolbarGroup>
+								<p:commandButton value="New" icon="pi pi-plus"
+									actionListener="#{gradeBean.openNew}"
+									update=":form:manage-grade-content"
+									oncomplete="PF('manageGradeDialog').show()"
+									styleClass="ui-button-success" style="margin-right: .5rem" immediate="true">
+									<p:resetInput target=":form:manage-grade-content" />
+								</p:commandButton>
+								<p:commandButton id="delete-grades-button"
+									value="#{gradeBean.deleteButtonMessage}" icon="pi pi-trash"
+									actionListener="#{gradeBean.deleteSelectedGrades}"
+									styleClass="ui-button-danger"
+									disabled="#{!gradeBean.hasSelectedGrades()}" update="@this">
+									<p:confirm header="Confirmation"
+										message="Voulez-vous supprimé les grades?"
+										icon="pi pi-exclamation-triangle"  />
+								</p:commandButton>
+							</p:toolbarGroup>
+							<p:toolbarGroup align="right">
+								<p:fileUpload mode="simple" skinSimple="true" label="Import"
+									chooseIcon="pi pi-download" />
+								<p:commandButton value="Export" icon="pi pi-upload"
+									styleClass="ui-button-help" ajax="false">
+									<p:dataExporter type="pdf" target="dt-grades" fileName="grades" />
+								</p:commandButton>
+							</p:toolbarGroup>
+						</p:toolbar>
+
+						<p:dataTable id="dt-grades" widgetVar="dtGrades" var="grade"
+							value="#{gradeBean.grades}" reflow="true"
+							styleClass="grades-table" selection="#{gradeBean.selectedGrades}"
+							rowKey="#{grade.id}" paginator="true" rows="10"
+							rowSelectMode="add" paginatorPosition="bottom">
+							<f:facet name="header">
+								<div class="grades-table-header">
+									<span style="font-weight: bold">MENTION</span> <span
+										class="filter-container ui-input-icon-left"> <i
+										class="pi pi-search"></i> <p:inputText id="globalFilter"
+											onkeyup="PF('dtGrades').filter()" placeholder="Search" />
+									</span>
+
+								</div>
+							</f:facet>
+							<p:ajax event="rowSelect" update=":form:delete-grades-button" />
+							<p:ajax event="rowUnselect" update=":form:delete-grades-button" />
+							<p:ajax event="rowSelectCheckbox"
+								update=":form:delete-grades-button" />
+							<p:ajax event="rowUnselectCheckbox"
+								update=":form:delete-grades-button" />
+							<p:ajax event="toggleSelect" update=":form:delete-grades-button" />
+
+							<p:column selectionMode="multiple" exportable="false"></p:column>
+
+							<p:column headerText="Code" sortBy="#{grade.code}"
+								filterBy="#{grade.code}">
+								<h:outputText value="#{grade.code}" />
+							</p:column>
+							<p:column headerText="Libellé" sortBy="#{grade.libelle}"
+								filterBy="#{grade.libelle}">
+								<h:outputText value="#{grade.libelle}" />
+							</p:column>
+							<p:column headerText="Description" sortBy="#{grade.description}"
+								filterBy="#{grade.description}">
+								<h:outputText value="#{grade.description}" />
+							</p:column>
+							<p:column headerText="Année " sortBy="#{grade.nbAnnee}"
+								filterBy="#{grade.nbAnnee}">
+								<h:outputText value="#{grade.nbAnnee}">
+									<!--  <f:convertDateTime pattern="dd/MM/yyyy" />-->
+								</h:outputText>
+							</p:column>
+							<p:column headerText="Type Système" sortBy="#{grade.typeSysteme.libelle}"
+								filterBy="#{grade.typeSysteme.libelle}">
+								<h:outputText value="#{grade.typeSysteme.libelle}" />
+							</p:column>
+							
+
+
+							<p:column exportable="false">
+								<p:commandButton icon="pi pi-pencil"
+									update=":form:manage-grade-content"
+									oncomplete="PF('manageGradeDialog').show()"
+									styleClass="edit-button rounded-button ui-button-success"
+									process="@this">
+									<f:setPropertyActionListener value="#{grade}"
+										target="#{gradeBean.selectedGrade}" />
+									<p:resetInput target=":form:manage-grade-content" />
+								</p:commandButton>
+								<p:commandButton class="ui-button-warning rounded-button"
+									icon="pi pi-trash" process="@this"
+									oncomplete="PF('deleteGradeDialog').show()">
+									<f:setPropertyActionListener value="#{grade}"
+										target="#{gradeBean.selectedGrade}" />
+								</p:commandButton>
+							</p:column>
+
+						</p:dataTable>
+
+						<p:dialog header="Grade Details" showEffect="fade" modal="true"
+							widgetVar="manageGradeDialog" responsive="true">
+							<p:outputPanel id="manage-grade-content" class="ui-fluid">
+								<p:outputPanel rendered="#{not empty gradeBean.selectedGrade}">
+
+									<div class="p-field">
+										<p:outputLabel for="code">Code</p:outputLabel>
+										<p:inputText id="code" value="#{gradeBean.selectedGrade.code}"
+											required="true" />
+									</div>
+									<div class="p-field">
+										<p:outputLabel for="libelle">Libellé</p:outputLabel>
+										<p:inputText id="libelle"
+											value="#{gradeBean.selectedGrade.libelle}" required="true" />
+									</div>
+									<div class="p-field">
+										<p:outputLabel for="description">Description</p:outputLabel>
+										<p:inputTextarea id="description"
+											value="#{gradeBean.selectedGrade.description}" />
+									</div>
+
+									<div class="p-field ">
+										<p:outputLabel for="nbAnnee"> Nombre D'année</p:outputLabel>
+										<p:inputText id="nbAnnee"
+											value="#{gradeBean.selectedGrade.nbAnnee }" required="true" />
+										<!--  <p:datePicker id="nbAnnee"
+											value="#{gradeBean.selectedGrade.nbAnnee}" showIcon="true" /> -->
+									</div>
+
+									<div class="p-field">
+										<h:outputLabel for="">Type Système</h:outputLabel>
+										<BR />
+										<p:selectOneMenu
+											value="#{gradeBean.selectedGrade.typeSysteme}"
+											converter="#{genericSecuredConverter}">
+											<f:selectItems value="#{typeSystemeBean.typeSystemes}"
+												var="typeSysteme" itemLabel="#{typeSysteme.libelle}"
+												itemValue="#{typeSysteme}" />
+										</p:selectOneMenu>
+									</div>
+
+								</p:outputPanel>
+							</p:outputPanel>
+
+							<f:facet name="footer">
+								<p:commandButton value="Save" icon="pi pi-check"
+									actionListener="#{gradeBean.saveGrade}"
+									update="manage-grade-content"
+									process="manage-grade-content @this" />
+								<p:commandButton value="Cancel" icon="pi pi-times"
+									onclick="PF('manageGradeDialog').hide()"
+									class="ui-button-secondary" immediate="true" />
+							</f:facet>
+						</p:dialog>
+
+						<p:confirmDialog widgetVar="deleteGradeDialog" showEffect="fade"
+							width="300" message="Delete the grade?" header="Confirm"
+							severity="warn">
+							<p:commandButton value="Yes" icon="pi pi-check"
+								actionListener="#{gradeBean.deleteGrade}" process="@this"
+								oncomplete="PF('deleteGradeDialog').hide()" />
+							<p:commandButton value="No" type="button"
+								styleClass="ui-button-secondary" icon="pi pi-times"
+								onclick="PF('deleteGradeDialog').hide()" />
+						</p:confirmDialog>
+
+						<p:confirmDialog global="true" showEffect="fade" width="300">
+							<p:commandButton value="Yes" type="button"
+								styleClass="ui-confirmdialog-yes" icon="pi pi-check" />
+							<p:commandButton value="No" type="button"
+								styleClass="ui-confirmdialog-no ui-button-secondary"
+								icon="pi pi-times" />
+						</p:confirmDialog>
+
+					</div>
+				</h:form>
+			</div>
+		</div>
+	</div>
+</h:body>
+</html>
